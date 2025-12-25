@@ -1,4 +1,4 @@
-package com.example.lms.Config;
+package com.example.lms.config;
 
 import com.example.lms.security.JwtAuthFilter;
 import org.springframework.beans.factory.ObjectProvider;

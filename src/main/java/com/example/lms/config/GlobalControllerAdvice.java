@@ -1,4 +1,4 @@
-package com.example.lms.Config;
+package com.example.lms.config;
 
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.bind.annotation.ControllerAdvice;

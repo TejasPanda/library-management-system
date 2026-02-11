@@ -55,12 +55,13 @@
         <p class="text-secondary">You have no borrow history yet.</p>
     </div>
 
-    <!-- History List -->
-    <div class="row" th:each="h : ${history}">
-        <div class="col-md-6 mb-4">
-            <div class="history-card">
 
-                <!-- BOOK INFO -->
+    <!-- History List -->
+    <div class="row">
+        <div class="col-12 col-sm-6 col-lg-4 mb-4"
+             th:each="h : ${history}">
+            <div class="history-card h-100">
+
                 <h4 class="fw-bold text-white"
                     th:text="${h.book.bookName}"></h4>
 
@@ -69,59 +70,100 @@
                     <span th:text="${h.book.authorName}"></span>
                 </p>
 
-                <!-- BORROWED AT -->
                 <p class="mb-1">
                     <span class="label">Borrowed At:</span>
                     <span th:text="${#temporals.format(h.borrowedAt, 'dd MMM yyyy, hh:mm a')}"></span>
                 </p>
 
-                <!-- DUE DATE -->
                 <p class="mb-1">
                     <span class="label">Due Date:</span>
                     <span th:text="${#temporals.format(h.dueDate, 'dd MMM yyyy')}"
-                          th:classappend="${h.status.name() == 'BORROWED' and h.dueDate.toLocalDate().isBefore(T(java.time.LocalDate).now())}
-                                          ? ' overdue' : ''">
-                    </span>
+                          th:classappend="${h.status.name() == 'BORROWED' and
+                                       h.dueDate.toLocalDate().isBefore(T(java.time.LocalDate).now())}
+                                       ? ' overdue' : ''">
+                </span>
                 </p>
 
-                <!-- RETURNED AT -->
                 <p class="mb-1">
                     <span class="label">Returned At:</span>
 
                     <span th:if="${h.returnedAt != null}"
                           class="returned"
                           th:text="${#temporals.format(h.returnedAt, 'dd MMM yyyy, hh:mm a')}">
-                    </span>
+                </span>
 
                     <span th:if="${h.returnedAt == null}"
                           class="overdue">
-                        Not Returned
-                    </span>
+                    Not Returned
+                </span>
                 </p>
 
-                <!-- STATUS -->
                 <p class="mt-2">
                     <span class="label">Status:</span>
 
                     <span th:if="${h.status.name() == 'RETURNED'}"
                           class="returned">
-                        Returned
-                    </span>
+                    Returned
+                </span>
 
                     <span th:if="${h.status.name() == 'BORROWED'}">
-                        <span th:if="${h.dueDate.toLocalDate().isBefore(T(java.time.LocalDate).now())}"
-                              class="overdue">
-                            Overdue
-                        </span>
-                        <span th:unless="${h.dueDate.toLocalDate().isBefore(T(java.time.LocalDate).now())}">
-                            Borrowed
-                        </span>
+                    <span th:if="${h.dueDate.toLocalDate().isBefore(T(java.time.LocalDate).now())}"
+                          class="overdue">
+                        Overdue
                     </span>
+                    <span th:unless="${h.dueDate.toLocalDate().isBefore(T(java.time.LocalDate).now())}">
+                        Borrowed
+                    </span>
+                </span>
                 </p>
 
             </div>
         </div>
     </div>
+    <!-- PAGINATION -->
+    <div class="d-flex justify-content-center mt-4"
+         th:if="${totalPages > 1}">
+        <nav>
+            <ul class="pagination">
+
+                <!-- Previous -->
+                <li class="page-item"
+                    th:classappend="${currentPage == 0} ? 'disabled'">
+                    <a class="page-link"
+                       th:href="@{/ui/history(page=${currentPage - 1})}">
+                        Previous
+                    </a>
+                </li>
+
+                <!-- Sliding Window -->
+                <li class="page-item"
+                    th:each="i : ${#numbers.sequence(
+                    currentPage > 2 ? currentPage - 2 : 0,
+                    currentPage + 2 > totalPages - 1 ? totalPages - 1 : currentPage + 2
+                )}"
+                    th:classappend="${i == currentPage} ? 'active'">
+
+                    <a class="page-link"
+                       th:text="${i + 1}"
+                       th:href="@{/ui/history(page=${i})}">
+                    </a>
+                </li>
+
+                <!-- Next -->
+                <li class="page-item"
+                    th:classappend="${currentPage >= totalPages - 1} ? 'disabled'">
+                    <a class="page-link"
+                       th:href="@{/ui/history(page=${currentPage + 1})}">
+                        Next
+                    </a>
+                </li>
+
+            </ul>
+        </nav>
+    </div>
+
+
+
 
 </div>
 

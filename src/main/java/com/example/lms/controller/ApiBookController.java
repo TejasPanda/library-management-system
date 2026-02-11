@@ -3,6 +3,7 @@ package com.example.lms.controller;
 import com.example.lms.model.Book;
 import com.example.lms.model.BorrowRecord;
 import com.example.lms.service.BookService;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
@@ -24,14 +25,14 @@ public class ApiBookController {
     // BOOK INVENTORY
     // =========================
     @GetMapping("/books")
-    public List<Book> getAllBooks() {
-        return bookService.getAllBooks();
+    public Page<Book> getAllBooks(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        return bookService.getAllBooks(page, size);
     }
 
-    @PostMapping("/admin/books")
-    public ResponseEntity<Book> addBook(@RequestBody Book book) {
-        return ResponseEntity.ok(bookService.addBook(book));
-    }
+
 
 
 
@@ -57,23 +58,36 @@ public class ApiBookController {
     // SEARCH
     // =========================
     @GetMapping("/books/search/author")
-    public List<Book> searchByAuthor(@RequestParam String authorName) {
-        return bookService.searchByAuthor(authorName);
+    public Page<Book> searchByAuthor(
+            @RequestParam String authorName,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        return bookService.searchByAuthor(authorName, page, size);
     }
 
+
     @GetMapping("/books/search/title")
-    public List<Book> searchByTitle(@RequestParam String bookName) {
-        return bookService.searchByTitle(bookName);
+    public Page<Book> searchByTitle(
+            @RequestParam String bookName,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        return bookService.searchByTitle(bookName, page, size);
     }
+
 
     // =========================
     // USER BORROW DATA
     // =========================
     @GetMapping("/users/{username}/borrows")
-    public List<BorrowRecord> getUserBorrowHistory(
-            @PathVariable String username
+    public Page<BorrowRecord> getUserBorrowHistory(
+            @PathVariable String username,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
     ) {
-        return bookService.getBorrowHistory(username);
+        return bookService.getBorrowHistory(username, page, size);
     }
+
 }
 

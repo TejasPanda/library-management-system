@@ -2,6 +2,8 @@ package com.example.lms.repository;
 
 import com.example.lms.model.BorrowRecord;
 import com.example.lms.model.BorrowStatus;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.time.LocalDateTime;
@@ -11,7 +13,10 @@ import java.util.Optional;
 public interface BorrowRecordRepository extends JpaRepository<BorrowRecord, Long> {
 
     // User history
-    List<BorrowRecord> findByUser_UsernameOrderByBorrowedAtDesc(String username);
+    Page<BorrowRecord> findByUser_UsernameOrderByBorrowedAtDesc(
+            String username,
+            Pageable pageable
+    );
 
     // Admin view
     List<BorrowRecord> findByStatus(BorrowStatus status);
@@ -23,12 +28,22 @@ public interface BorrowRecordRepository extends JpaRepository<BorrowRecord, Long
             String username,
             BorrowStatus status
     );
+    Page<BorrowRecord> findByUser_UsernameAndReturnedAtIsNull(
+            String username,
+            Pageable pageable
+    );
 
-    List<BorrowRecord> findByUser_UsernameAndStatus(String username, BorrowStatus borrowStatus);
-    List<BorrowRecord> findByReturnedAtIsNull();
 
-    List<BorrowRecord> findByReturnedAtIsNotNull();
 
-    List<BorrowRecord> findByReturnedAtIsNullAndDueDateBefore(LocalDateTime dueDate);
+
+
+    Page<BorrowRecord> findByReturnedAtIsNull(Pageable pageable);
+
+    Page<BorrowRecord> findByReturnedAtIsNotNull(Pageable pageable);
+
+    Page<BorrowRecord> findByReturnedAtIsNullAndDueDateBefore(
+            LocalDateTime date,
+            Pageable pageable
+    );
 
 }

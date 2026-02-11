@@ -12,133 +12,185 @@
         font-family: "Segoe UI", sans-serif;
     }
 
+    /* HEADER */
+    .dashboard-subtitle {
+        color: #9ca3af;
+        font-size: 0.9rem;
+    }
+
+    /* CARD */
     .admin-card {
-        backdrop-filter: blur(10px);
-        background: rgba(98, 0, 234, 0.15);
-        border: 1px solid rgba(150, 80, 255, 0.3);
-        border-radius: 15px;
-        padding: 25px;
-        transition: 0.25s;
-        height: 100%;
+        background: linear-gradient(
+            145deg,
+            rgba(98, 0, 234, 0.2),
+            rgba(30, 0, 70, 0.5)
+        );
+        border-radius: 16px;
+        padding: 24px;
+        border: 1px solid rgba(150, 80, 255, 0.25);
+        transition: 0.25s ease;
+        min-height: 220px;
     }
 
     .admin-card:hover {
-        transform: translateY(-4px);
-        box-shadow: 0px 0px 25px rgba(150, 80, 255, 0.4);
+        transform: translateY(-6px);
+        box-shadow: 0 15px 35px rgba(150, 80, 255, 0.35);
     }
 
-    .add-btn {
-        background: #a855f7;
-        border: none;
-    }
-
-    .add-btn:hover {
-        background: #c084fc;
-    }
-
-    .archive-btn {
-        background: #ff4d6d;
-        border: none;
-    }
-
-    .archive-btn:hover {
-        background: #ff6b81;
-    }
-
-    .restore-btn {
-        background: #22c55e;
-        border: none;
-    }
-
-    .restore-btn:hover {
-        background: #16a34a;
-    }
-
+    /* BADGES */
     .badge-active {
-        background: #22c55e;
+        background: linear-gradient(90deg, #22c55e, #16a34a);
+        padding: 6px 12px;
+        border-radius: 50px;
+        font-size: 0.75rem;
     }
 
     .badge-archived {
-        background: #6c757d;
+        background: linear-gradient(90deg, #6c757d, #495057);
+        padding: 6px 12px;
+        border-radius: 50px;
+        font-size: 0.75rem;
+    }
+
+    /* BUTTONS */
+    .add-btn {
+        background: linear-gradient(90deg, #a855f7, #9333ea);
+        border: none;
+        border-radius: 10px;
+    }
+
+    .add-btn:hover {
+        background: linear-gradient(90deg, #c084fc, #a855f7);
+    }
+
+    .archive-btn {
+        background: linear-gradient(90deg, #ff4d6d, #ff3d5c);
+        border: none;
+        border-radius: 10px;
+        font-weight: 500;
+    }
+
+    .restore-btn {
+        background: linear-gradient(90deg, #22c55e, #16a34a);
+        border: none;
+        border-radius: 10px;
+        font-weight: 500;
+    }
+
+    /* FILTER BUTTONS */
+    .filter-btn {
+        border-radius: 50px;
+        font-size: 0.85rem;
+    }
+
+    /* PAGINATION */
+    .pagination .page-link {
+        background-color: #1d1d2b;
+        color: #c084fc;
+        border: 1px solid rgba(150, 80, 255, 0.3);
+    }
+
+    .pagination .page-item.active .page-link {
+        background: #a855f7;
+        border-color: #a855f7;
+        color: #fff;
+    }
+
+    .pagination .page-link:hover {
+        background: #2a1e45;
+        color: #fff;
     }
   </style>
 </head>
 
 <body>
 
-<!-- ADMIN NAVBAR -->
 <div th:replace="navbar-admin :: navbar"></div>
 
-<div class="container">
+<div class="container py-4">
 
-  <h2 class="mb-4 fw-bold">Admin Dashboard</h2>
+  <!-- HEADER -->
+  <div class="row align-items-center mb-4">
+    <div class="col-md-8">
+      <h2 class="fw-bold mb-1">Admin Dashboard</h2>
+      <p class="dashboard-subtitle mb-0">
+        Manage library inventory
+      </p>
+    </div>
 
-  <!-- ADD BOOK -->
-  <a href="/ui/admin/books/add" class="btn add-btn text-white mb-4">
-    + Add New Book
-  </a>
+    <div class="col-md-4 text-md-end mt-3 mt-md-0">
+      <a href="/ui/admin/books/add"
+         class="btn add-btn text-white px-4 py-2">
+        + Add Book
+      </a>
+    </div>
+  </div>
+
+  <hr style="border-color: rgba(255,255,255,0.06);">
 
   <!-- FILTER BUTTONS -->
-  <div class="d-flex gap-2 mb-4">
+  <div class="d-flex gap-2 mb-4 flex-wrap">
     <a href="/ui/admin/books?filter=ALL"
-       class="btn btn-outline-light"
-       th:classappend="${filter == 'ALL'} ? 'active'">
+       class="btn btn-outline-light filter-btn"
+       th:classappend="${filter == 'ALL'} ? ' active'">
       All
     </a>
 
     <a href="/ui/admin/books?filter=ACTIVE"
-       class="btn btn-outline-success"
-       th:classappend="${filter == 'ACTIVE'} ? 'active'">
+       class="btn btn-outline-success filter-btn"
+       th:classappend="${filter == 'ACTIVE'} ? ' active'">
       Active
     </a>
 
     <a href="/ui/admin/books?filter=ARCHIVED"
-       class="btn btn-outline-secondary"
-       th:classappend="${filter == 'ARCHIVED'} ? 'active'">
+       class="btn btn-outline-secondary filter-btn"
+       th:classappend="${filter == 'ARCHIVED'} ? ' active'">
       Archived
     </a>
   </div>
 
-  <!-- BOOK LIST -->
-  <div class="row" th:each="book : ${books}">
-    <div class="col-md-4 mb-4">
-      <div class="admin-card d-flex flex-column justify-content-between">
+  <!-- BOOK GRID -->
+  <div class="row g-4">
+
+    <div class="col-12 col-sm-6 col-md-4 col-lg-3"
+         th:each="book : ${books}">
+
+      <div class="admin-card h-100 d-flex flex-column justify-content-between">
 
         <div>
-          <h4 class="fw-bold" th:text="${book.bookName}"></h4>
-          <p class="text-light mb-1"
+          <h5 class="fw-semibold mb-1"
+              th:text="${book.bookName}"></h5>
+
+          <p class="text-secondary small mb-3"
              th:text="'Author: ' + ${book.authorName}"></p>
 
-          <!-- STATUS BADGE -->
-          <div class="mt-2">
-                        <span th:if="${book.active}" class="badge badge-active">
+          <div>
+                        <span th:if="${book.active}"
+                              class="badge badge-active">
                             Active
                         </span>
 
-            <span th:if="${!book.active}" class="badge badge-archived">
+            <span th:if="${!book.active}"
+                  class="badge badge-archived">
                             Archived
                         </span>
           </div>
         </div>
 
-        <!-- ACTIONS -->
-        <div class="mt-4">
+        <div class="mt-3">
 
-          <!-- ACTIVE + NOT BORROWED → ARCHIVE -->
           <a th:if="${book.active and !book.issued}"
              th:href="@{/ui/admin/books/archive/{id}(id=${book.bookId})}"
              class="btn archive-btn w-100 text-white">
             Archive Book
           </a>
 
-          <!-- ACTIVE + BORROWED → DISABLED -->
           <button th:if="${book.active and book.issued}"
                   class="btn btn-secondary w-100"
                   disabled>
             Cannot Archive (Borrowed)
           </button>
 
-          <!-- ARCHIVED → RESTORE (REPLACES ARCHIVE) -->
           <a th:if="${!book.active}"
              th:href="@{/ui/admin/books/restore/{id}(id=${book.bookId})}"
              class="btn restore-btn w-100 text-white">
@@ -147,9 +199,63 @@
 
         </div>
 
-
       </div>
+
     </div>
+
+  </div>
+
+  <!-- PAGINATION -->
+  <div class="d-flex justify-content-center mt-5"
+       th:if="${totalPages > 1}">
+
+    <nav>
+      <ul class="pagination">
+
+        <!-- Previous -->
+        <li class="page-item"
+            th:classappend="${currentPage == 0} ? ' disabled'">
+          <a class="page-link"
+             th:href="@{/ui/admin/books(
+                        filter=${filter},
+                        page=${currentPage - 1}
+                       )}">
+            Previous
+          </a>
+        </li>
+
+        <!-- Page Numbers -->
+        <li class="page-item"
+            th:each="i : ${#numbers.sequence(
+                        currentPage > 2 ? currentPage - 2 : 0,
+                        currentPage + 2 < totalPages - 1 ? currentPage + 2 : totalPages - 1
+                    )}"
+            th:classappend="${i == currentPage} ? ' active'">
+
+          <a class="page-link"
+             th:href="@{/ui/admin/books(
+                        filter=${filter},
+                        page=${i}
+                       )}"
+             th:text="${i + 1}">
+          </a>
+        </li>
+
+        <!-- Next -->
+        <li class="page-item"
+            th:classappend="${currentPage == totalPages - 1} ? ' disabled'">
+          <a class="page-link"
+             th:href="@{/ui/admin/books(
+                        filter=${filter},
+                        page=${currentPage + 1}
+                       )}">
+            Next
+          </a>
+        </li>
+
+      </ul>
+    </nav>
+
   </div>
 
 </div>

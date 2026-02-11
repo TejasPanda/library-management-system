@@ -1,6 +1,7 @@
 package com.example.lms.controller;
 
 import com.example.lms.model.Book;
+import com.example.lms.model.BorrowRecord;
 import com.example.lms.service.BookService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.data.domain.Page;
@@ -72,6 +73,8 @@ public class UIBookController {
     // ---------------------------------------------------------
     @GetMapping("/profile")
     public String userProfile(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "8") int size,
             Model model,
             Principal principal,
             HttpServletRequest request
@@ -79,14 +82,18 @@ public class UIBookController {
         addPath(model, request);
 
         String username = principal.getName();
+
+        Page<BorrowRecord> recordPage =
+                bookService.getActiveBorrowsForUser(username, page, size);
+
         model.addAttribute("username", username);
-        model.addAttribute(
-                "borrowedRecords",
-                bookService.getActiveBorrowsForUser(username)
-        );
+        model.addAttribute("borrowedRecords", recordPage.getContent());
+        model.addAttribute("currentPage", recordPage.getNumber());
+        model.addAttribute("totalPages", recordPage.getTotalPages());
 
         return "profile";
     }
+
 
 
     // ---------------------------------------------------------
@@ -95,17 +102,24 @@ public class UIBookController {
     @GetMapping("/books/search/title")
     public String searchByTitle(
             @RequestParam String bookName,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
             Model model,
             HttpServletRequest request
     ) {
         addPath(model, request);
 
-        model.addAttribute("books", bookService.searchByTitle(bookName));
-        model.addAttribute("currentPage", 0);
-        model.addAttribute("totalPages", 1);
+        Page<Book> bookPage = bookService.searchByTitle(bookName, page, size);
+
+        model.addAttribute("books", bookPage.getContent());
+        model.addAttribute("currentPage", bookPage.getNumber());
+        model.addAttribute("totalPages", bookPage.getTotalPages());
+        model.addAttribute("bookName", bookName);
+        model.addAttribute("size", size);
 
         return "books";
     }
+
 
     // ---------------------------------------------------------
     // SEARCH BY AUTHOR
@@ -113,15 +127,23 @@ public class UIBookController {
     @GetMapping("/books/search/author")
     public String searchByAuthor(
             @RequestParam String authorName,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
             Model model,
             HttpServletRequest request
     ) {
         addPath(model, request);
 
-        model.addAttribute("books", bookService.searchByAuthor(authorName));
-        model.addAttribute("currentPage", 0);
-        model.addAttribute("totalPages", 1);
+        Page<Book> bookPage = bookService.searchByAuthor(authorName, page, size);
+
+        model.addAttribute("books", bookPage.getContent());
+        model.addAttribute("currentPage", bookPage.getNumber());
+        model.addAttribute("totalPages", bookPage.getTotalPages());
+        model.addAttribute("authorName", authorName);
+        model.addAttribute("size", size);
 
         return "books";
     }
+
+
 }

@@ -14,15 +14,16 @@ public interface BookRepository extends JpaRepository<Book, Integer> {
 
     List<Book> findByBookNameContainingIgnoreCase(String bookName);
 
-    Page<Book> findByAuthorNameContainingIgnoreCase(
+    Page<Book> findByActiveTrueAndBookNameContainingIgnoreCase(
+            String bookName,
+            Pageable pageable
+    );
+
+    Page<Book> findByActiveTrueAndAuthorNameContainingIgnoreCase(
             String authorName,
             Pageable pageable
     );
 
-    Page<Book> findByBookNameContainingIgnoreCase(
-            String bookName,
-            Pageable pageable
-    );
     // USER SIDE
     List<Book> findByActiveTrue();
 
@@ -32,5 +33,6 @@ public interface BookRepository extends JpaRepository<Book, Integer> {
     List<Book> findByActiveTrueAndAuthorNameContainingIgnoreCase(String authorName);
 
     // ADMIN (optional)
-    List<Book> findByActiveFalse();
+    Page<Book> findByActiveFalse(Pageable pageable);
+
 }

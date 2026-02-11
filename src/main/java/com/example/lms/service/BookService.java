@@ -25,6 +25,9 @@ public class BookService {
 
     @Autowired
     private BookRepository repo;
+    @Autowired
+    private BorrowRecordRepository borrowRecordRepository;
+
 
     @Autowired
     private UserService userService;
@@ -33,8 +36,13 @@ public class BookService {
     @Autowired
     private UserRepository userRepository;
 
-    public List<Book> getAllBooks() {
-        return repo.findAll(Sort.by(Sort.Direction.DESC, "bookId"));
+    public Page<Book> getAllBooks(int page, int size) {
+        Pageable pageable = PageRequest.of(
+                page,
+                size,
+                Sort.by(Sort.Direction.DESC, "bookId")
+        );
+        return repo.findByActiveTrue(pageable);
     }
 
 
@@ -123,21 +131,56 @@ public class BookService {
 
     }
 
-    public List<Book> searchByTitle(String bookName) {
-        return repo.findByActiveTrueAndBookNameContainingIgnoreCase(bookName);
+    public Page<Book> searchByTitle(String bookName, int page, int size) {
+
+        Pageable pageable = PageRequest.of(
+                page,
+                size,
+                Sort.by(Sort.Direction.DESC, "bookId")
+        );
+
+        return repo.findByActiveTrueAndBookNameContainingIgnoreCase(
+                bookName,
+                pageable
+        );
     }
 
-    public List<Book> searchByAuthor(String authorName) {
-        return repo.findByActiveTrueAndAuthorNameContainingIgnoreCase(authorName);
+    public Page<Book> searchByAuthor(String authorName, int page, int size) {
+
+        Pageable pageable = PageRequest.of(
+                page,
+                size,
+                Sort.by(Sort.Direction.DESC, "bookId")
+        );
+
+        return repo.findByActiveTrueAndAuthorNameContainingIgnoreCase(
+                authorName,
+                pageable
+        );
     }
+
 
 
     // Get all borrowed books of a user
 
-    public List<BorrowRecord> getBorrowHistory(String username) {
+    public Page<BorrowRecord> getBorrowHistory(
+            String username,
+            int page,
+            int size
+    ) {
+        Pageable pageable = PageRequest.of(
+                page,
+                size,
+                Sort.by(Sort.Direction.DESC, "borrowedAt")
+        );
+
         return borrowRecordRepo
-                .findByUser_UsernameOrderByBorrowedAtDesc(username);
+                .findByUser_UsernameOrderByBorrowedAtDesc(
+                        username,
+                        pageable
+                );
     }
+
 
     public List<BorrowRecord> getAllActiveBorrows() {
         return borrowRecordRepo.findByStatus(BorrowStatus.BORROWED);
@@ -150,10 +193,21 @@ public class BookService {
         return repo.findByActiveTrue(pageable);
     }
 
-    public List<BorrowRecord> getActiveBorrowsForUser(String username) {
-        return borrowRecordRepo.findByUser_UsernameAndStatus(
-                username, BorrowStatus.BORROWED);
+    public Page<BorrowRecord> getActiveBorrowsForUser(
+            String username,
+            int page,
+            int size
+    ) {
+        Pageable pageable = PageRequest.of(
+                page,
+                size,
+                Sort.by(Sort.Direction.DESC, "borrowedAt")
+        );
+
+        return borrowRecordRepository
+                .findByUser_UsernameAndReturnedAtIsNull(username, pageable);
     }
+
     // -------------------------
     // SOFT DELETE (ARCHIVE)
     // -------------------------
@@ -189,12 +243,22 @@ public class BookService {
     // -------------------------
     // FILTERS
     // -------------------------
-    public List<Book> getActiveBooks() {
-        return repo.findByActiveTrue();
+    public Page<Book> getActiveBooks(int page, int size) {
+        Pageable pageable = PageRequest.of(
+                page,
+                size,
+                Sort.by(Sort.Direction.DESC, "bookId")
+        );
+        return repo.findByActiveTrue(pageable);
     }
 
-    public List<Book> getArchivedBooks() {
-        return repo.findByActiveFalse();
+    public Page<Book> getArchivedBooks(int page, int size) {
+        Pageable pageable = PageRequest.of(
+                page,
+                size,
+                Sort.by(Sort.Direction.DESC, "bookId")
+        );
+        return repo.findByActiveFalse(pageable);
     }
 
 }

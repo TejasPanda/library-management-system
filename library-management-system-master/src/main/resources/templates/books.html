@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <title>Browse Books</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            background-color: #121212;
+            color: #ffffff;
+            font-family: "Segoe UI", sans-serif;
+        }
+
+        /* HEADER */
+        .page-subtitle {
+            color: #9ca3af;
+            font-size: 0.9rem;
+        }
+
+        /* CARD */
+        .book-card {
+            background: linear-gradient(145deg, #1e1e1e, #181818);
+            border-radius: 16px;
+            padding: 20px;
+            border: 1px solid #2a2a2a;
+            transition: 0.25s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 220px;
+        }
+
+        .book-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 15px 30px rgba(0, 150, 255, 0.25);
+        }
+
+        /* BADGES */
+        .badge {
+            padding: 6px 12px;
+            border-radius: 50px;
+            font-size: 0.75rem;
+        }
+
+        /* SEARCH */
+        .search-box input {
+            background: #1d1d1d;
+            border: 1px solid #333;
+            color: white;
+            border-radius: 10px;
+        }
+
+        .search-box input:focus {
+            background: #1d1d1d;
+            color: white;
+            border-color: #0d6efd;
+            box-shadow: none;
+        }
+
+        /* PAGINATION */
+        .pagination .page-link {
+            background-color: #1d1d2b;
+            color: #0d6efd;
+            border: 1px solid rgba(13, 110, 253, 0.3);
+        }
+
+        .pagination .page-item.active .page-link {
+            background: #0d6efd;
+            border-color: #0d6efd;
+            color: #fff;
+        }
+
+        .pagination .page-link:hover {
+            background: #1a2f5a;
+            color: #fff;
+        }
+    </style>
+</head>
+
+<body>
+
+<div th:replace="~{navbar :: navbar}"></div>
+
+<div class="container py-4">
+
+    <!-- HEADER -->
+    <div class="mb-4">
+        <h2 class="fw-bold mb-1">Browse Books</h2>
+        <p class="page-subtitle mb-0">
+            Search, sort and borrow available books
+        </p>
+    </div>
+
+    <!-- SEARCH + SORT -->
+    <div class="row g-3 mb-4">
+
+        <div class="col-md-4">
+            <form method="get" action="/ui/books/search/title" class="d-flex search-box">
+                <input class="form-control me-2"
+                       type="search"
+                       placeholder="Search by Title"
+                       name="bookName"
+                       th:value="${bookName}">
+                <button class="btn btn-primary">Search</button>
+            </form>
+        </div>
+
+        <div class="col-md-4">
+            <form method="get" action="/ui/books/search/author" class="d-flex search-box">
+                <input class="form-control me-2"
+                       type="search"
+                       placeholder="Search by Author"
+                       name="authorName"
+                       th:value="${authorName}">
+                <button class="btn btn-secondary">Search</button>
+            </form>
+        </div>
+
+        <div class="col-md-4">
+            <form method="get" action="/ui/books" class="d-flex">
+                <select name="sort" class="form-select me-2">
+                    <option value="bookName" th:selected="${sort == 'bookName'}">Title A-Z</option>
+                    <option value="authorName" th:selected="${sort == 'authorName'}">Author A-Z</option>
+                    <option value="isIssued" th:selected="${sort == 'isIssued'}">Availability</option>
+                    <option value="bookId" th:selected="${sort == 'bookId'}">Recently Added</option>
+                </select>
+                <button class="btn btn-info text-white">Sort</button>
+            </form>
+        </div>
+
+    </div>
+
+    <!-- BOOK GRID -->
+    <div class="row g-4">
+
+        <div class="col-12 col-sm-6 col-md-4 col-lg-3"
+             th:each="book : ${books}">
+
+            <div class="book-card h-100">
+
+                <div>
+                    <h5 class="fw-semibold mb-2"
+                        th:text="${book.bookName}"></h5>
+
+                    <p class="text-info small mb-3"
+                       th:text="'Author: ' + ${book.authorName}"></p>
+
+                    <div>
+                        <span th:if="${book.isIssued}"
+                              class="badge bg-danger">
+                            Issued
+                        </span>
+
+                        <span th:unless="${book.isIssued}"
+                              class="badge bg-success">
+                            Available
+                        </span>
+                    </div>
+                </div>
+
+                <div class="mt-3">
+
+                    <a th:if="${!book.isIssued}"
+                       th:href="@{/ui/books/borrow/{id}(id=${book.bookId})}"
+                       class="btn btn-primary w-100">
+                        Borrow
+                    </a>
+
+                    <p th:if="${book.isIssued}"
+                       class="text-warning fw-semibold mt-2 text-center mb-0">
+                        Currently unavailable
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- PAGINATION -->
+    <!-- PAGINATION -->
+    <div class="d-flex justify-content-center mt-5"
+         th:if="${totalPages > 1}">
+
+        <nav>
+            <ul class="pagination">
+
+                <!-- Previous -->
+                <li class="page-item"
+                    th:classappend="${currentPage == 0} ? 'disabled'">
+
+                    <!-- Title Search -->
+                    <a class="page-link"
+                       th:if="${bookName != null}"
+                       th:href="@{/ui/books/search/title(
+                        bookName=${bookName},
+                        page=${currentPage - 1},
+                        size=${size}
+                   )}">
+                        Previous
+                    </a>
+
+                    <!-- Author Search -->
+                    <a class="page-link"
+                       th:if="${authorName != null}"
+                       th:href="@{/ui/books/search/author(
+                        authorName=${authorName},
+                        page=${currentPage - 1},
+                        size=${size}
+                   )}">
+                        Previous
+                    </a>
+
+                    <!-- Normal -->
+                    <a class="page-link"
+                       th:if="${bookName == null and authorName == null}"
+                       th:href="@{/ui/books(
+                        page=${currentPage - 1},
+                        size=${size},
+                        sort=${sort}
+                   )}">
+                        Previous
+                    </a>
+                </li>
+
+                <!-- Page Numbers -->
+                <li class="page-item"
+                    th:each="i : ${#numbers.sequence(
+                    currentPage > 2 ? currentPage - 2 : 0,
+                    currentPage + 2 < totalPages - 1 ? currentPage + 2 : totalPages - 1
+                )}"
+                    th:classappend="${i == currentPage} ? 'active'">
+
+                    <!-- Title -->
+                    <a class="page-link"
+                       th:if="${bookName != null}"
+                       th:text="${i + 1}"
+                       th:href="@{/ui/books/search/title(
+                        bookName=${bookName},
+                        page=${i},
+                        size=${size}
+                   )}">
+                    </a>
+
+                    <!-- Author -->
+                    <a class="page-link"
+                       th:if="${authorName != null}"
+                       th:text="${i + 1}"
+                       th:href="@{/ui/books/search/author(
+                        authorName=${authorName},
+                        page=${i},
+                        size=${size}
+                   )}">
+                    </a>
+
+                    <!-- Normal -->
+                    <a class="page-link"
+                       th:if="${bookName == null and authorName == null}"
+                       th:text="${i + 1}"
+                       th:href="@{/ui/books(
+                        page=${i},
+                        size=${size},
+                        sort=${sort}
+                   )}">
+                    </a>
+                </li>
+
+                <!-- Next -->
+                <li class="page-item"
+                    th:classappend="${currentPage >= totalPages - 1} ? 'disabled'">
+
+                    <!-- Title -->
+                    <a class="page-link"
+                       th:if="${bookName != null}"
+                       th:href="@{/ui/books/search/title(
+                        bookName=${bookName},
+                        page=${currentPage + 1},
+                        size=${size}
+                   )}">
+                        Next
+                    </a>
+
+                    <!-- Author -->
+                    <a class="page-link"
+                       th:if="${authorName != null}"
+                       th:href="@{/ui/books/search/author(
+                        authorName=${authorName},
+                        page=${currentPage + 1},
+                        size=${size}
+                   )}">
+                        Next
+                    </a>
+
+                    <!-- Normal -->
+                    <a class="page-link"
+                       th:if="${bookName == null and authorName == null}"
+                       th:href="@{/ui/books(
+                        page=${currentPage + 1},
+                        size=${size},
+                        sort=${sort}
+                   )}">
+                        Next
+                    </a>
+                </li>
+
+            </ul>
+        </nav>
+    </div>
+
+
+</div>
+
+</body>
+</html>
